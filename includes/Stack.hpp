@@ -6,14 +6,13 @@
 /*   By: gmaris <gmaris@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/15 14:59:09 by gmaris            #+#    #+#             */
-/*   Updated: 2021/12/15 18:19:12 by gmaris           ###   ########.fr       */
+/*   Updated: 2021/12/15 18:23:34 by gmaris           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FT_STACK_HPP
 #define FT_STACK_HPP
 
-#include <iostream>
 #include <vector>
 
 namespace ft{

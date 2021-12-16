@@ -6,12 +6,14 @@
 /*   By: gmaris <gmaris@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/15 17:15:00 by gmaris            #+#    #+#             */
-/*   Updated: 2021/12/15 17:15:12 by gmaris           ###   ########.fr       */
+/*   Updated: 2021/12/15 18:23:14 by gmaris           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef COLOR_HPP
 #define COLOR_HPP
+
+#include <iostream>
 
 #define BLACK   "\033[30m" /* Black   */
 #define RED     "\033[31m" /* Red     */
