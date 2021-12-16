@@ -6,7 +6,7 @@
 /*   By: gmaris <gmaris@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 15:02:07 by gmaris            #+#    #+#             */
-/*   Updated: 2021/12/16 15:27:42 by gmaris           ###   ########.fr       */
+/*   Updated: 2021/12/16 18:59:54 by gmaris           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,8 +34,15 @@ class iterator
 		iterator(const iterator&);
 		~iterator();
 
-		iterator	&operator=(const iterator &lhs);
-		iterator	&operator++(); //prefix increment
+		iterator	&operator=(const iterator &lhs)
+		{
+			this->p = lhs.p;
+		}
+		iterator	&operator++() //prefix increment
+		{
+			this->p += ;
+			return *this;
+		}
 		reference	operator*();
 	
 	public:
