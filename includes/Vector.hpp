@@ -6,18 +6,25 @@
 /*   By: gmaris <gmaris@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/15 14:58:13 by gmaris            #+#    #+#             */
-/*   Updated: 2022/01/06 14:27:24 by gmaris           ###   ########.fr       */
+/*   Updated: 2022/01/11 18:27:50 by gmaris           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FT_vector_HPP
 #define FT_vector_HPP
 
+#define _RED     "\x1b[31m"
+#define _GREEN   "\x1b[32m"
+#define _YELLOW  "\x1b[33m"
+#define _BLUE    "\x1b[34m"
+#define _MAGENTA "\x1b[35m"
+#define _CYAN    "\x1b[36m"
+#define _RESET   "\x1b[0m"
+
 #include <memory>
 #include <exception>
 #include <stdexcept>
-#include "vector_Iterator.hpp"
-#include "reverse_vector_iterator.hpp"
+#include "iterator.hpp"
 
 namespace ft {
 template<typename T, typename Allocator = std::allocator<T> >
@@ -34,12 +41,12 @@ class vector
 		typedef size_t										size_type;
 		typedef	typename allocator_type::difference_type	difference_type;
 
-		typedef	ft::vector_iterator<value_type>			iterator;
-		typedef	ft::vector_iterator<const value_type>	const_iterator;
+		typedef	ft::random_access_iterator<T>		iterator;
+		typedef	ft::random_access_iterator<const T>	const_iterator;
 
 
-		typedef	ft::ReverseIterator<iterator>			reverse_iterator;
-		typedef	ft::ReverseIterator<const_iterator>		const_reverse_iterator;
+		typedef	ft::reverse_iterator<iterator>			reverse_iterator;
+		typedef	ft::reverse_iterator<const_iterator>	const_reverse_iterator;
 
 	private:
 		pointer			_p;
@@ -169,23 +176,29 @@ class vector
 			return _size == 0;
 		}
 
-		void	reserve(size_type n)
+		void reserve(size_type n)
 		{
-			if (n > max_size())
-				throw std::length_error("ft::vector::reserve");
-			if (n <= _capacity)
-				return ;
-			value_type *new_p = _alloc.allocate(n);
+			size_type new_capa = n;
+			size_type actual_capa = _size;
 			size_type i = 0;
+			if (n < 0 || n > max_size())
+				throw std::length_error("ft::vector::reserve");
+			if (n < _capacity)
+				return ;
+			if (actual_capa * 2 > n)
+				new_capa = actual_capa * 2;
+			pointer tmp = _alloc.allocate(new_capa);
 			while (i < _size)
 			{
-				_alloc.construct(&new_p[i], _p[i]);
+				_alloc.construct(tmp + i, _p[i]);
 				_alloc.destroy(&_p[i]);
-				++i;
+				i++;
 			}
+			this->clear();
 			_alloc.deallocate(_p, _capacity);
-			_capacity = n;
-			_p = new_p;
+			_p = tmp;
+			_capacity = new_capa;
+			_size = i;
 		}
 
 	
@@ -195,24 +208,24 @@ class vector
 	
 			  reference operator[](size_type n)
 		{
-			return _p[n];
+			return *(_p + n);
 		}
 		const_reference operator[](size_type n) const
 		{
-			return _p[n];
+			return *(_p + n);
 		}
 
 			  reference at(size_type n)
 		{
 			if (n < 0 || n >= _size)
 				throw std::out_of_range("ft::vector::at");
-			return *this[n];
+			return _p[n];
 		}
 		const_reference at(size_type n) const
 		{
 			if (n < 0 || n >= _size)
 				throw std::out_of_range("ft::vector::at");
-			return *this[n];;
+			return _p[n];
 		}
 
 			  reference front(void)
@@ -237,21 +250,22 @@ class vector
 		** MODIFIERS
 		*/
 	
-		template<class InputIterator>
-		void	assign(InputIterator first, InputIterator last)
+		void	assign(size_type count, const value_type &value)
+		{
+			clear();
+			insert(begin(), count, value);
+		}
+		template <class InputIterator>
+		void	assign (InputIterator first, InputIterator last,
+		typename std::enable_if<!std::is_integral<InputIterator>::value>::type* = 0)
 		{
 			clear();
 			insert(begin(), first, last);
 		}
-		void	assign(size_type n, const value_type &val)
-		{
-			clear();
-			insert(begin(), n, val);
-		}
 
 		void	push_back(const value_type &val)
 		{
-			reserve(_calc_new_capacity(_size + 1));
+			reserve(_size + 1);
 			insert(end(), val);
 		}
 
@@ -262,71 +276,150 @@ class vector
 
 		iterator	insert(iterator pos, const value_type &val)
 		{
-			insert(pos, static_cast<size_type>(1), val);
-			return pos;
+			insert(pos, 1, val);
+			return ++pos;
 		}
 		void	insert(iterator pos, size_type n, const value_type &val)
 		{
+			if (n < 0)
+				throw std::length_error("ft::vector::insert");
 			if (n == 0)
 				return ;
-			
-			size_type			index = pos - begin();
-			reserve(_size + n);
-			_make_room(index, n);
-			size_type	i = 0;
-			while (i < n)
+			size_type dist = 0;
+			iterator bg = begin();
+			while (bg != pos)
 			{
-				_alloc.construct(&_p[index + i], val);
-				++i;
+				++dist; ++bg;
+			}
+			size_type nb_move = 0;
+			iterator end = this->end();
+			while (bg != end)
+			{
+				++nb_move; ++ bg;
+			}
+			if (_size + n > _capacity)
+				reserve(_size + n);
+			
+			pointer tmp = _p + dist;
+			while (nb_move > 0)
+			{
+				_alloc.construct(tmp + n + nb_move, *(tmp));
+				_alloc.destroy(tmp + n + nb_move);
+				--nb_move;
+			}
+			size_type j = 0;
+			while (j < n)
+			{
+				_alloc.construct(tmp + j, val);
+				++j;
 			}
 			_size += n;
 		}
 		template<class InputIterator>
-		void	insert(iterator position, InputIterator first, InputIterator last)
+		typename std::enable_if<!std::is_integral<InputIterator>::value>::type
+		insert(iterator position, InputIterator first, InputIterator last)
 		{
-			size_t index = position - begin();
-			size_t n = last - first;
-			allocator_type alloc;
-
-			reserve(_size + n);
-
-			vector tmp(begin() + index, this->end());
-
-			for (size_t i = 0; i < tmp.size(); i++)
-				pop_back();
-			while (first != last)
+			size_type pos = (&(*position) - _p);
+			size_type n = 0;
+			InputIterator itmp = first;
+			pointer tmp;
+			while (itmp != last)
 			{
-				push_back(static_cast<T*>(*first));
-				++first;
+				n++;
+				itmp++;
 			}
-			for (iterator it = tmp.begin(); it != tmp.end(); it++)
-				push_back(*it);
+			if (_size + n > _capacity)
+			{
+				size_type new_capa = _size + n;
+				size_type actual_capa = _size;
+				if (actual_capa * 2 > new_capa)
+					new_capa = actual_capa * 2;
+				tmp = _alloc.allocate(new_capa);
+				size_type j = 0;
+				size_type i= 0;
+				while (j < pos)
+				{
+					_alloc.construct(tmp + j, _p[j]);
+					j++;
+				}
+				while  (i < n && first != last)
+				{
+					_alloc.construct(tmp + j + i, *first);
+					i++;
+					first++;
+				}
+				while (_capacity != 0 && j < _size)
+				{
+					_alloc.construct(tmp + j + n, _p[j]);
+					j++;
+				}
+				this->clear();
+				_alloc.deallocate(_p, _capacity);
+				_p = tmp;
+				_capacity = new_capa;
+				_size = j + n;
+			}
+			else
+			{
+				size_type i = 0;
+				while (i < n && first != last)
+				{
+					position = this->insert(position, *first);
+					i++;
+					position++;
+					first++;
+				}
+			}
 		}
 
+	private:
+		void	_make_room(size_type len_start, size_type n)
+		{
+			pointer tmp = _p + len_start + n;
+	
+			size_type i = n;
+			while (i != 0)
+			{
+				//_alloc.construct(tmp, *(tmp - 1));
+				//_alloc.destroy(tmp -1);
+				--i;
+				--tmp;
+			}
+		}
+
+	public:
 		iterator erase(iterator pos)
 		{
-			return erase(pos, pos + 1);
+			return erase(pos, ++pos);
 		}
 		iterator erase(iterator first, iterator last)
 		{
-			size_type nb = last - first;
 			size_type start = first - begin();
-			size_type end = start + nb;
-
-			size_type i = start;
-			while (i < end)
+			size_type nb = 0;
+			iterator tmp(first);
+			while (first != last)
 			{
-				_alloc.destroy(_p + i);
-				++i;
+				++first;
+				++nb;
 			}
-			while (i < _size)
+			if (_size > 0 && nb > 0)
 			{
-				_alloc.construct(&_p[i - nb], _p[i]);
-				//_alloc.destroy[_p + i];
-				++i;
+				size_type i = 0;
+				while (i < nb)
+				{
+					_alloc.destroy(_p + start + i);
+					++i;
+				}
+				size_type j = start;
+				while (j + nb < _size)
+				{
+					_alloc.construct(_p + j, *(_p + j + nb));
+					_alloc.destroy(_p + j + nb);
+					++j;
+				}
+				_size -= nb;
 			}
-			_size -= nb;
-			return first;
+			return iterator(_p + start);
 		}
 
 		void	swap(vector &x)
@@ -357,42 +450,6 @@ class vector
 		{
 			return _alloc;
 		}
-
-		/*
-		** help fonction
-		*/
-	private:
-			/*
-			** Capacity calc
-			*/
-		size_type _calc_new_capacity(size_type nb_elem)
-		{
-			if (_capacity == 0)
-				return nb_elem;
-			
-			size_type new_capa = _capacity;
-			while (new_capa < nb_elem)
-				new_capa *=2;
-			return (new_capa);
-		}
-
-			/*
-			** Make room for insert
-			*/
-		void _make_room(size_t index, size_t nb_move)
-		{
-			if (_size == 0)
-				return ;
-			size_type i = _size;
-			while (i >= index && i > 0)
-			{
-				_alloc.construct(&_p[i + nb_move], _p[i]);
-				_alloc.destroy(&_p[i]);
-				--i;
-			}
-		}
-
-
 };
 
 template<class T, class Alloc>
@@ -461,4 +518,3 @@ void	swap(vector<T, Alloc> &x, vector<T, Alloc> &y)
 
 }
 #endif
-

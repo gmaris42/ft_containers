@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   reverse_reverse_vector_iterator.hpp                        :+:      :+:    :+:   */
+/*   reverse_vector_iterator.hpp                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: gmaris <gmaris@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/05 16:17:40 by gmaris            #+#    #+#             */
-/*   Updated: 2022/01/05 22:16:47 by gmaris           ###   ########.fr       */
+/*   Updated: 2022/01/07 17:21:19 by gmaris           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,13 +118,14 @@ class ReverseIterator
 			return (*(*this + nb));
 		}
 
-		friend ReverseIterator operator-(size_type n, const ReverseIterator& rev_it)
+		friend difference_type operator-(ReverseIterator &lhs, ReverseIterator &rhs)
 		{
-			return (rev_it + n);
+			return lhs.base() - rhs.base();
 		}
-		friend ReverseIterator operator+(ReverseIterator &lhs, ReverseIterator &rhs)
+		friend ReverseIterator operator+(size_type nb, const ReverseIterator& it)
 		{
-			return (rhs.base() - lhs.base());
+			ReverseIterator tmp(it);
+			return tmp += nb;
 		}
 };
 }

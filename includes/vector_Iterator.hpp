@@ -6,7 +6,7 @@
 /*   By: gmaris <gmaris@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/16 15:02:07 by gmaris            #+#    #+#             */
-/*   Updated: 2022/01/06 14:04:40 by gmaris           ###   ########.fr       */
+/*   Updated: 2022/01/10 13:24:00 by gmaris           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ class vector_iterator
 	public:
 		typedef	typename Allocator::value_type		value_type;
 		typedef			 T*			pointer;
-		typedef	typename Allocator::reference		reference;
+		typedef			 T&			reference;
 		typedef	typename std::ptrdiff_t	difference_type;
 		typedef			 size_t						size_type;
 
@@ -43,7 +43,6 @@ class vector_iterator
 			_val = rhs._val;
 			return *this;
 		}
-
 		pointer getPtr() const {return _val;}
 
 		reference	operator*()  const {return *_val;}
@@ -105,7 +104,7 @@ class vector_iterator
 			vector_iterator tmp(it);
 			return tmp += nb;
 		}
-		friend difference_type	operator-(vector_iterator &lhs, vector_iterator rhs)
+		friend difference_type	operator-(vector_iterator &lhs, vector_iterator &rhs)
 		{
 			return lhs._val - rhs._val;
 		}
