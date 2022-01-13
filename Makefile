@@ -6,7 +6,7 @@
 #    By: gmaris <gmaris@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/11/24 15:16:37 by gmaris            #+#    #+#              #
-#    Updated: 2021/12/15 18:20:39 by gmaris           ###   ########.fr        #
+#    Updated: 2022/01/12 19:16:49 by gmaris           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -29,8 +29,8 @@ OBJS 		= 	$(addprefix $(OBJS_DIR), $(OBJ))
 
 TEST 		= 	stack_test.hpp
 
-TEST_DIR	= 	./test/
-TESTS 		= 	$(addprefix $(TEST_DIR), $(TEST))
+# TEST_DIR	= 	./test/
+# TESTS 		= 	$(addprefix $(TEST_DIR), $(TEST))
 
 INC_DIR		= 	./includes/
 INCS		= 	$(addprefix $(INC_DIR), $(INC))

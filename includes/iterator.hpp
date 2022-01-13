@@ -6,7 +6,7 @@
 /*   By: gmaris <gmaris@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/07 17:38:04 by gmaris            #+#    #+#             */
-/*   Updated: 2022/01/11 15:17:02 by gmaris           ###   ########.fr       */
+/*   Updated: 2022/01/12 18:30:09 by gmaris           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -296,12 +296,6 @@ template <class Iterator>
 reverse_iterator<Iterator>	operator+(typename reverse_iterator<Iterator>::difference_type n,const reverse_iterator<Iterator> &rev_it)
 {
 	return rev_it + n;
-}
-
-template <class It1, class It2>
-typename reverse_iterator<It1>::difference_type operator-(const reverse_iterator<It1> &lhs, const reverse_iterator<It2> &rhs)
-{
-	return rhs.operator->() - lhs.operator->();
 }
 
 }

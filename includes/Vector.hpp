@@ -6,7 +6,7 @@
 /*   By: gmaris <gmaris@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/15 14:58:13 by gmaris            #+#    #+#             */
-/*   Updated: 2022/01/11 18:27:50 by gmaris           ###   ########.fr       */
+/*   Updated: 2022/01/12 18:57:06 by gmaris           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 #include <exception>
 #include <stdexcept>
 #include "iterator.hpp"
+#include "Enable_if.hpp"
 
 namespace ft {
 template<typename T, typename Allocator = std::allocator<T> >
@@ -38,15 +39,13 @@ class vector
 		typedef	typename allocator_type::pointer				pointer;
 		typedef	typename allocator_type::const_pointer			const_pointer;
 
-		typedef size_t										size_type;
-		typedef	typename allocator_type::difference_type	difference_type;
+		typedef typename allocator_type::size_type				size_type;
+		typedef	typename allocator_type::difference_type		difference_type;
 
-		typedef	ft::random_access_iterator<T>		iterator;
-		typedef	ft::random_access_iterator<const T>	const_iterator;
-
-
-		typedef	ft::reverse_iterator<iterator>			reverse_iterator;
-		typedef	ft::reverse_iterator<const_iterator>	const_reverse_iterator;
+		typedef	typename ft::random_access_iterator<T>			iterator;
+		typedef	typename ft::random_access_iterator<const T>	const_iterator;
+		typedef	typename ft::reverse_iterator<iterator>			reverse_iterator;
+		typedef	typename ft::reverse_iterator<const_iterator>	const_reverse_iterator;
 
 	private:
 		pointer			_p;
@@ -257,7 +256,7 @@ class vector
 		}
 		template <class InputIterator>
 		void	assign (InputIterator first, InputIterator last,
-		typename std::enable_if<!std::is_integral<InputIterator>::value>::type* = 0)
+		typename ft::enable_if<!ft::is_integral<InputIterator>::value>::type* = 0)
 		{
 			clear();
 			insert(begin(), first, last);
@@ -276,8 +275,14 @@ class vector
 
 		iterator	insert(iterator pos, const value_type &val)
 		{
+			size_type dist = 0;
+			iterator bg = begin();
+			while (bg != pos)
+			{
+				++dist; ++bg;
+			}
 			insert(pos, 1, val);
-			return ++pos;
+			return begin() + dist;
 		}
 		void	insert(iterator pos, size_type n, const value_type &val)
 		{
@@ -299,15 +304,16 @@ class vector
 			}
 			if (_size + n > _capacity)
 				reserve(_size + n);
-			
-			pointer tmp = _p + dist;
+			pointer tmp = _p + dist + (nb_move - 1);
 			while (nb_move > 0)
 			{
-				_alloc.construct(tmp + n + nb_move, *(tmp));
-				_alloc.destroy(tmp + n + nb_move);
+				_alloc.construct(tmp + n, *(tmp));
+				_alloc.destroy(tmp);
+				--tmp;
 				--nb_move;
 			}
 			size_type j = 0;
+			tmp = _p + dist;
 			while (j < n)
 			{
 				_alloc.construct(tmp + j, val);
@@ -316,78 +322,48 @@ class vector
 			_size += n;
 		}
 		template<class InputIterator>
-		typename std::enable_if<!std::is_integral<InputIterator>::value>::type
-		insert(iterator position, InputIterator first, InputIterator last)
+		typename ft::enable_if<!ft::is_integral<InputIterator>::value>::type
+		insert(iterator pos, InputIterator first, InputIterator last)
 		{
-			size_type pos = (&(*position) - _p);
-			size_type n = 0;
-			InputIterator itmp = first;
-			pointer tmp;
-			while (itmp != last)
+			size_type dist = 0;
+			iterator bg = begin();
+			while (bg != pos)
 			{
-				n++;
-				itmp++;
+				++dist; ++ bg;
+			}
+			size_type nb_move = 0;
+			iterator end = this->end();
+			while (bg != end)
+			{
+				++nb_move; ++ bg;
+			}
+			size_type n = 0;
+			InputIterator tmp_it = first;
+			while (tmp_it != last)
+			{
+				++n; ++ tmp_it;
 			}
 			if (_size + n > _capacity)
+				reserve(_size + n);
+			pointer tmp = _p + dist + (nb_move - 1);
+			while (nb_move > 0)
 			{
-				size_type new_capa = _size + n;
-				size_type actual_capa = _size;
-				if (actual_capa * 2 > new_capa)
-					new_capa = actual_capa * 2;
-				tmp = _alloc.allocate(new_capa);
-				size_type j = 0;
-				size_type i= 0;
-				while (j < pos)
-				{
-					_alloc.construct(tmp + j, _p[j]);
-					j++;
-				}
-				while  (i < n && first != last)
-				{
-					_alloc.construct(tmp + j + i, *first);
-					i++;
-					first++;
-				}
-				while (_capacity != 0 && j < _size)
-				{
-					_alloc.construct(tmp + j + n, _p[j]);
-					j++;
-				}
-				this->clear();
-				_alloc.deallocate(_p, _capacity);
-				_p = tmp;
-				_capacity = new_capa;
-				_size = j + n;
-			}
-			else
-			{
-				size_type i = 0;
-				while (i < n && first != last)
-				{
-					position = this->insert(position, *first);
-					i++;
-					position++;
-					first++;
-				}
-			}
-		}
-
-	private:
-		void	_make_room(size_type len_start, size_type n)
-		{
-			pointer tmp = _p + len_start + n;
-	
-			size_type i = n;
-			while (i != 0)
-			{
-				//_alloc.construct(tmp, *(tmp - 1));
-				//_alloc.destroy(tmp -1);
-				--i;
+				_alloc.construct(tmp + n, *(tmp));
+				_alloc.destroy(tmp);
 				--tmp;
+				--nb_move;
 			}
+			size_type j = 0;
+			tmp = _p + dist;
+			while (j < n)
+			{
+				_alloc.construct(tmp + j, *first);
+				++first;
+				++j;
+			}
+			_size += n;
 		}
 
-	public:
 		iterator erase(iterator pos)
 		{
 			return erase(pos, ++pos);
@@ -461,13 +437,15 @@ bool	operator==(const vector<T, Alloc> &lhs, const vector<T, Alloc> &rhs)
 	typename vector<T, Alloc>::const_iterator it_lhs = lhs.begin();
 	typename vector<T, Alloc>::const_iterator it_rhs = rhs.begin();
 
-	while (it_lhs != lhs.end())
+	while (it_lhs != lhs.end() && it_rhs != rhs.end())
 	{
 		if (*it_lhs != *it_rhs)
 			return false;
 		++it_lhs;
 		++it_rhs;
 	}
+	if (it_lhs != lhs.end() || it_rhs != rhs.end())
+		return false;
 	return true;
 }
 
@@ -482,32 +460,36 @@ bool	operator<(const vector<T, Alloc> &lhs, const vector<T, Alloc> &rhs)
 {
 	typename vector<T, Alloc>::const_iterator it_lhs = lhs.begin();
 	typename vector<T, Alloc>::const_iterator it_rhs = rhs.begin();
-	while (it_rhs != rhs.end())
+	while (it_lhs != lhs.end() && it_rhs != rhs.end())
 	{
-		if (it_lhs == lhs.end() || *it_lhs < *it_rhs)
+		if (*it_lhs < *it_rhs)
 			return true;
+		if (*it_lhs > *it_rhs)
+			return false;
 		++it_rhs;
 		++it_lhs;
 	}
+	if (it_lhs == lhs.end() && it_rhs != rhs.end())
+		return true;
 	return false;
 }
 
 template<class T, class Alloc>
 bool	operator<=(const vector<T, Alloc> &lhs, const vector<T, Alloc> &rhs)
 {
-	return !(lhs > rhs);
+	return (lhs < rhs || lhs == rhs);
 }
 
 template<class T, class Alloc>
 bool	operator>(const vector<T, Alloc> &lhs, const vector<T, Alloc> &rhs)
 {
-	return (lhs > rhs);
+	return (!(lhs < rhs) && lhs != rhs);
 }
 
 template<class T, class Alloc>
 bool	operator>=(const vector<T, Alloc> &lhs, const vector<T, Alloc> &rhs)
 {
-	return !(lhs < rhs);
+	return (lhs > rhs || lhs == rhs);
 }
 
 template<class T, class Alloc>
