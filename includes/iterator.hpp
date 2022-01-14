@@ -6,7 +6,7 @@
 /*   By: gmaris <gmaris@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/07 17:38:04 by gmaris            #+#    #+#             */
-/*   Updated: 2022/01/12 18:30:09 by gmaris           ###   ########.fr       */
+/*   Updated: 2022/01/14 21:20:47 by gmaris           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include <memory>
 #include <exception>
 #include <stdexcept>
+#include "Enable_if.hpp"
 namespace ft
 {
 
@@ -87,12 +88,14 @@ class random_access_iterator : private ft::iterator<random_access_iterator_tag, 
 
 		random_access_iterator	&operator=(random_access_iterator const &rhs)
 		{
+			if (this == &rhs)
+				return *this;
 			_p = rhs._p;
 			return *this;
 		}
 		pointer		base() const 						{return _p;}
-		pointer		operator->() const					{return &operator*();}
 		reference	operator*() const					{return *_p;}
+		pointer		operator->() const					{return &operator*();}
 		reference	operator[](difference_type n) const	{return *(_p + n);}
 
 		operator random_access_iterator<const T>(void)
@@ -186,6 +189,104 @@ random_access_iterator<f_T> operator-(typename ft::random_access_iterator<f_T>::
 {
 	return (random_access_iterator<f_T>(r.operator->() - n));
 }
+
+template <typename T, bool isConst, class Compare = std::less<T> >
+class bidirectional_iterator : private ft::iterator<bidirectional_iterator_tag, T>
+{
+	public:
+		typedef typename ft::enable_if_const<isConst, T>::value_type								value_type;
+		typedef typename ft::iterator<bidirectional_iterator_tag, value_type>::pointer				pointer;
+		typedef typename ft::iterator<bidirectional_iterator_tag, value_type>::reference			reference;
+		typedef typename ft::iterator<bidirectional_iterator_tag, value_type>::difference_type		difference_type;
+		typedef typename ft::iterator<bidirectional_iterator_tag, value_type>::iterator_category	iterator_category;
+
+	private:
+		T*	_p;
+
+	public:
+		bidirectional_iterator() : _p(0) {}
+		bidirectional_iterator(T* p) : _p(p) {}
+		template <typename A, bool B, class C>
+		bidirectional_iterator(const bidirectional_iterator<A, B, C>  &cpy, typename ft::enable_if<!B>::type* = 0) : _p(cpy.base()) {}
+		~bidirectional_iterator() {}
+
+	
+		bidirectional_iterator& operator=(const bidirectional_iterator &cpy)
+		{
+			if (this == &cpy)
+				return *this;
+			_p = cpy._p;
+		}
+
+		pointer		base() const		{return _p;}
+		reference	operator*() const	{return _p->data;}
+		pointer		operator->() const	{return &operator*();}
+
+
+		bool operator==(const bidirectional_iterator &rhs)
+		{
+			return (_p->data.first == rhs._p->data.first);
+		}
+		bool operator!=(const bidirectional_iterator &rhs)
+		{
+			return (_p->data.first != rhs._p->data.first);
+		}
+
+		bidirectional_iterator &operator++(void)
+		{
+			if (_p->right)
+			{
+				_p = _p->right;
+				while (_p->_left)
+					_p = _p->left;
+			}
+			else
+			{
+				while (_p->parent && _p->parent->right == _p)
+					_p = _p->parent;
+				if (_p->parent)
+					_p = _p->parent;
+			}
+			return (*this);
+		}
+		bidirectional_iterator &operator++(int)
+		{
+			bidirectional_iterator tmp(*this);
+			operator++();
+			return tmp;
+		}
+
+		bidirectional_iterator &operator--()
+		{
+			if (_p->left)
+			{
+				_p = _p->left;
+				while (_p->right)
+					_p = _p->right;
+			}
+			else
+			{
+				while (_p->parent && _p->_parent->left == _p)
+					_p = _p->parent;
+				if (_p->parent)
+					_p = _p->parent;
+			}
+			return *this;
+		}
+		bidirectional_iterator &operator--(int)
+		{
+			bidirectional_iterator tmp(*this);
+			operator--();
+			return tmp;
+		}
+
+		operator bidirectional_iterator<const T, true, Compare>(void)
+		{
+			return (bidirectional_iterator<const T, true, Compare>(_p));
+		}
+
+
+};
 
 
 template <class Iterator>

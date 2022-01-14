@@ -6,7 +6,7 @@
 /*   By: gmaris <gmaris@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/12 15:20:59 by gmaris            #+#    #+#             */
-/*   Updated: 2022/01/12 15:38:15 by gmaris           ###   ########.fr       */
+/*   Updated: 2022/01/14 21:16:44 by gmaris           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,5 +45,44 @@ template <> struct is_integral<unsigned int> : public integral_constant<unsigned
 template <> struct is_integral<unsigned long int> : public integral_constant<unsigned long int, true> {};
 template <> struct is_integral<unsigned long long int> : public integral_constant<unsigned long long int, true> {};
 
+template <bool isConst, typename T>
+struct enable_if_const
+{
+	typedef typename T::value_type			value_type;
+};
+
+template <typename T>
+struct enable_if_const<true, T>
+{
+	typedef const typename T::value_type	value_type;
+};
+
+
+template <class InputIterator1, class InputIterator2>
+bool lexicographical_compare(InputIterator1 first1, InputIterator1 last1, InputIterator2 first2, InputIterator2 last2)
+{
+	while (first1 != last1)
+	{
+		if (first2 == last2 || *first2 < *first1)
+			return false;
+		else if (*first1 < *first2)
+			return true;
+		++first1;
+		++first2;
+	}
+	return (first2 != last2);
+};
+template <class InputIterator1, class InputIterator2>
+bool equal(InputIterator1 first1, InputIterator1 last1, InputIterator2 first2)
+{
+	while (first1 != last1)
+	{
+		if (!(*first1 == *first2))
+			return false;
+		++first1;
+		++first2;
+	}
+	return true;
+};
 }
 #endif

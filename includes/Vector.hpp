@@ -6,7 +6,7 @@
 /*   By: gmaris <gmaris@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/15 14:58:13 by gmaris            #+#    #+#             */
-/*   Updated: 2022/01/12 18:57:06 by gmaris           ###   ########.fr       */
+/*   Updated: 2022/01/14 19:47:06 by gmaris           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -400,6 +400,8 @@ class vector
 
 		void	swap(vector &x)
 		{
+			if (this == &x)
+				return ;
 			value_type	*tmp(_p);
 			size_type	tmp_size(_size);
 			size_type	tmp_capa(_capacity);
