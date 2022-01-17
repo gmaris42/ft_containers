@@ -6,7 +6,7 @@
 /*   By: gmaris <gmaris@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/07 17:38:04 by gmaris            #+#    #+#             */
-/*   Updated: 2022/01/14 21:20:47 by gmaris           ###   ########.fr       */
+/*   Updated: 2022/01/17 15:06:52 by gmaris           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -216,6 +216,7 @@ class bidirectional_iterator : private ft::iterator<bidirectional_iterator_tag, 
 			if (this == &cpy)
 				return *this;
 			_p = cpy._p;
+			return *this;
 		}
 
 		pointer		base() const		{return _p;}
@@ -237,7 +238,7 @@ class bidirectional_iterator : private ft::iterator<bidirectional_iterator_tag, 
 			if (_p->right)
 			{
 				_p = _p->right;
-				while (_p->_left)
+				while (_p->left)
 					_p = _p->left;
 			}
 			else
@@ -249,10 +250,10 @@ class bidirectional_iterator : private ft::iterator<bidirectional_iterator_tag, 
 			}
 			return (*this);
 		}
-		bidirectional_iterator &operator++(int)
+		bidirectional_iterator operator++(int)
 		{
 			bidirectional_iterator tmp(*this);
-			operator++();
+			this->operator++();
 			return tmp;
 		}
 
@@ -273,7 +274,7 @@ class bidirectional_iterator : private ft::iterator<bidirectional_iterator_tag, 
 			}
 			return *this;
 		}
-		bidirectional_iterator &operator--(int)
+		bidirectional_iterator operator--(int)
 		{
 			bidirectional_iterator tmp(*this);
 			operator--();

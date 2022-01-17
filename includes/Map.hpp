@@ -6,7 +6,7 @@
 /*   By: gmaris <gmaris@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/15 14:58:44 by gmaris            #+#    #+#             */
-/*   Updated: 2022/01/14 21:42:59 by gmaris           ###   ########.fr       */
+/*   Updated: 2022/01/17 18:10:09 by gmaris           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,10 @@ class map
 		~map()
 		{
 
+		}
+		void printBT(void)
+		{
+			_tree.printBT();
 		}
 
 		map	&operator=(const map &rhs)
@@ -189,7 +193,9 @@ class map
 		{
 			iterator tmp;
 			if ((tmp = _tree.find(value.first)) == end())
+			{
 				return (ft::make_pair(_tree.insert(value), true));
+			}
 			return (ft::make_pair(tmp, false));
 		}
 		iterator	insert(iterator hint, const value_type &value)

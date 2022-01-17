@@ -6,7 +6,7 @@
 /*   By: gmaris <gmaris@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/12 17:54:17 by gmaris            #+#    #+#             */
-/*   Updated: 2022/01/14 22:37:21 by gmaris           ###   ########.fr       */
+/*   Updated: 2022/01/17 22:05:22 by gmaris           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,52 +15,50 @@
 
 #include <iostream>
 
-#define BLACK   "\033[30m" /* Black   */
-#define RED     "\033[31m" /* Red     */
-#define GREEN   "\033[32m" /* Green   */
-#define YELLOW  "\033[33m" /* Yellow  */
-#define BLUE    "\033[34m" /* Blue    */
-#define MAGENTA "\033[35m" /* Magenta */
-#define CYAN    "\033[36m" /* Cyan    */
-#define WHITE   "\033[37m" /* White   */
-#define NC      "\033[0m"  /* Reset   */
+#define _BLACK   "\033[30m" /* Black   */
+#define _RED     "\033[31m" /* Red     */
+#define _GREEN   "\033[32m" /* Green   */
+#define _YELLOW  "\033[33m" /* Yellow  */
+#define _BLUE    "\033[34m" /* Blue    */
+#define _MAGENTA "\033[35m" /* Magenta */
+#define _CYAN    "\033[36m" /* Cyan    */
+#define _WHITE   "\033[37m" /* White   */
+#define _NC      "\033[0m"  /* Reset   */
 #include <memory>
 #include "iterator.hpp"
 #include "Enable_if.hpp"
 #include "pair.hpp"
 namespace ft{
 
-
 template <class T>
 class	node
 {
 	public:
-		typedef				T									value_type;
+		typedef		T	value_type;
 		node	*left;
 		node	*right;
 		node	*parent;
 		T		data;
 		int		height;
 
-	node(T val)
+	node(T val) : data(val)
 	{
 		left = NULL;
 		right = NULL;
 		parent = NULL;
-		data = val;
 		height = 1;
 	}
 	~node() {}
 
-	node &operator=(const node &cpy)
-	{
-		left = cpy.left;
-		right = cpy.right;
-		parent = cpy.parent;
-		data = cpy.data;
-		height = cpy.height;
-		return *this;
-	}
+	// node &operator=(const node &cpy)
+	// {
+	// 	left = cpy.left;
+	// 	right = cpy.right;
+	// 	parent = cpy.parent;
+	// 	data = cpy.data;
+	// 	height = cpy.height;
+	// 	return *this;
+	// }
 };
 
 template <class T, class Compare = ft::less<T> >
@@ -98,6 +96,7 @@ class tree
 		{
 			_end = _alloc.allocate(1);
 			_alloc.construct(_end, Node(T()));
+			_end->height = 0;
 			_root = _end;
 		}
 		~tree()
@@ -172,7 +171,7 @@ class tree
 			pointer root = _root;
 			while (root != _end && root != NULL)
 			{
-				if (_compare(root->data.first, key) == false && _comp(key, root->data.first) == false)
+				if (_compare(root->data.first, key) == false && _compare(key, root->data.first) == false)
 					return iterator(root);
 				if (_compare(key, root->data.first))
 					root = root->left;
@@ -189,6 +188,19 @@ class tree
 			if (n == NULL)
 				return 0;
 			return n->height;
+		}
+		void	actuHeight(pointer root)
+		{
+			// root = root->parent;
+			int i = 0;
+			while (root != NULL && i <= 12)
+			{
+				root->height = 1 + max(height(root->left), height(root->right));
+				root = root->parent;
+				++i;
+			}
+			if (i >= 12)
+				exit(0);
 		}
 		int	getBalance(pointer n)
 		{
@@ -207,6 +219,8 @@ class tree
 		}
 		void		rmNode(pointer pos)
 		{
+			// std::cout << _RED << "rm  node pos " << pos << _NC;
+			// std::cout << _RED << "rm  node key = " << pos->data.first << _NC << std::endl;
 			--_size;
 			_alloc.destroy(pos);
 			_alloc.deallocate(pos, 1);
@@ -214,8 +228,8 @@ class tree
 		pointer	minValueNode(pointer n)
 		{
 			pointer current = n;
-			while (current->left != NULL)
-				current = current->left;
+			while (current->right != NULL)
+				current = current->right;
 			return current;
 		}
 
@@ -234,12 +248,18 @@ class tree
 			pointer y = z->left;
 			pointer t_tre = y->right;
 
-			y->right = y;
+			y->right = z;
 			z->left = t_tre;
+
 			y->parent = z->parent;
+
 			z->parent = y;
+			if (t_tre != NULL)
+				t_tre->parent = z;
 			z->height = max(height(z->left), height(z->right)) + 1;
 			y->height = max(height(y->left), height(y->right)) + 1;
+			if (y->parent == NULL)
+				_root = y;
 			return y; 
 		} 
 
@@ -253,26 +273,31 @@ class tree
 		**		   T3  T4
 		*/
 		pointer leftRotate(pointer z) 
-		{ 
+		{
 			pointer y = z->right;
 			pointer t_two = y->left;
-			
+
 			y->left = z; 
 			z->right = t_two; 
 			y->parent = z->parent;
+
 			z->parent = y;
+			if (t_two != NULL)
+				t_two->parent = z;
 			z->height = max(height(z->left), height(z->right)) + 1;
 			y->height = max(height(y->left), height(y->right)) + 1;
+			if (y->parent == NULL)
+				_root = y;
 			return y; 
 		} 
 
 
-		iterator	insertNode(pointer pos, const value_type &val)
+		pointer	insertNode(pointer pos, const value_type &val)
 		{
 			if (pos == _end)
 			{
 				pointer tmp = newNode(val);
-				tmp->right = end();
+				tmp->right = _end;
 				_end->parent = tmp;
 				return tmp;
 			}
@@ -280,37 +305,30 @@ class tree
 				return newNode(val);
 			if (_compare(val.first, pos->data.first))
 			{
-				pos->left = insert(pos->left, val);
+				pos->left = insertNode(pos->left, val);
 				pos->left->parent = pos;
 			}
 			else if (_compare(pos->data.first, val.first))
 			{
-				pos->right = insert(pos->right, val);
+				pos->right = insertNode(pos->right, val);
 				pos->right->parent = pos;
 			}
 			else
 				return pos;
 			pos->height = 1 + max(height(pos->left), height(pos->right));
-
 			int balance = getBalance(pos);
-
-			//4 unbalanced cases
-			//left left
-			if (balance > 1 && _compare(val.first, pos->left->data.first))
-				return rightRotate(pos);
-			//right right
-			if (balance < -1 && _compare(pos->left->data.first, val.first))
-				return rightRotate(pos);
-			//left right
-			if (balance > 1 && _compare(pos->left->data.first, val.first))
+			if (balance > 1)
 			{
-				pos->left = leftRotate(pos->left);
+				if (_compare(val.first, pos->left->data.first))
+					return rightRotate(pos);
+				leftRotate(pos);
 				return rightRotate(pos);
 			}
-			//right left
-			if (balance < 11 && _compare(val.first, pos->left->data.first))
+			if (balance < -1)
 			{
-				pos->right = rightRotate(pos->right);
+				if (_compare(pos->right->data.first, val.first))
+					return leftRotate(pos);
+				rightRotate(pos);
 				return leftRotate(pos);
 			}
 			return pos;
@@ -322,10 +340,11 @@ class tree
 			{
 				_root = newNode(val);
 				_root->right = _end;
+				_root->height = 1;
 				return begin();
 			}
 			else
-				return insertNode(_root, val);
+				return iterator(insertNode(_root, val));
 		}
 	
 	private:
@@ -334,59 +353,165 @@ class tree
 			if (root == NULL)
 				return root;
 			if (_compare(val.first, root->data.first))
-				root->left = deleteNode(root->left, val);
+				deleteNode(root->left, val);
 			else if (_compare(root->data.first, val.first))
-				root->right = deleteNode(root->right, val);
+				deleteNode(root->right, val);
 			else
 			{
 				//one or no child
 				if (root->left == NULL || root->right == NULL)
 				{
-					pointer tmp = root->left ? root->left : root->right;
+					pointer tmp_child = root->left ? root->left : root->right;
 					//no child
-					if (tmp == NULL)
+					if (tmp_child == NULL)
 					{
-						tmp = root;
-						root = NULL;
+
+						if (root->parent == NULL)
+						{
+							_root = _end;
+						}
+						else
+						{
+							if (root->parent->left == root)
+								root->parent->left = NULL;
+							else
+								root->parent->right = NULL;
+						}
+						actuHeight(root);
 					}
+					// one child
 					else
 					{
-						*root = *tmp;
+
+						if (root->parent == NULL)
+						{
+							_root = tmp_child;
+						}
+						else
+						{
+							if (root->parent->left == root)
+								root->parent->left = tmp_child;
+							else
+								root->parent->right = tmp_child;
+						}
+						tmp_child->parent = root->parent;
+						actuHeight(tmp_child);
 					}
-					rmNode(tmp);
+					rmNode(root);
 				}
+				// two child
 				else
 				{
-					//replace par ->right leftmost and delete the old value
-					pointer tmp = minValueNode(root->right);
-					
-					root->data = tmp->data;
-					root->right = deleteNode(root->right, tmp->data);
+
+					pointer tmp = minValueNode(root->left); // may be null
+					pointer tmp_parent = tmp->parent;
+
+					//tmp->right == NULL is 100%
+					if (tmp->left == NULL)//tmp no child
+					{
+						//rm tmp from it's old parent
+						if (tmp->parent)
+						{
+							if (tmp->parent->right == tmp)
+								tmp->parent->right = NULL;
+							else
+								tmp->parent->left = NULL;
+						}
+						
+						//set tmp <-> new parent relation
+						tmp->parent = root->parent;
+						if (tmp->parent)
+						{
+							if (root->parent->left == root)
+								root->parent->left = tmp;
+							else
+								root->parent->right = tmp;
+						}
+						
+						//set tmp <-> new left relation
+						if (tmp == root->left)
+							tmp->left = NULL;
+						else
+						{
+							tmp->left = root->left;
+							if (tmp->left)
+								tmp->left->parent = tmp;
+						}
+						
+						//set tmp <-> new right relation
+						if (tmp == root->right)
+							tmp->right = NULL;
+						else
+						{
+							tmp->right = root->right;
+							if (tmp->right)
+								tmp->right->parent = tmp;
+						}
+					}
+					else if (tmp->left != NULL)//tmp has a child
+					{
+						//child take place of tmp
+						//set tmp->child <-> new child parent
+						tmp->left->parent = tmp->parent;
+						if (tmp->parent->left == tmp)
+							tmp->parent->left = tmp->left;
+						else
+							tmp->parent->right = tmp->left;
+
+						//set tmp <-> new parent relation
+						tmp->parent = root->parent;
+						if (tmp->parent)
+						{
+							if (root->parent->left == root)
+								root->parent->left = tmp;
+							else
+								root->parent->right = tmp;
+						}
+						
+						//set tmp <-> new left relation
+						if (tmp == root->left)
+							tmp->left = NULL;
+						else
+						{
+							tmp->left = root->left;
+							if (tmp->left)
+								tmp->left->parent = tmp;
+						}
+						
+						//set tmp <-> new right relation
+						if (tmp == root->right)
+							tmp->right = NULL;
+						else
+						{
+							tmp->right = root->right;
+							if (tmp->right)
+								tmp->right->parent = tmp;
+						}
+					}
+					actuHeight(tmp_parent);
+					if (tmp->parent == NULL)
+						_root = tmp;
+					rmNode(root);
+					root = tmp;
 				}
 			}
-			// if tree had one node 
 			if (root == NULL || root == _end)
 				return NULL;
 			root->height = 1 + max(height(root->left), height(root->right));
 
 			int balance = getBalance(root);
-
-			//4 unbalance cases
-			//left left
-			if (balance > 1 && getBalance(root->left) >= 0)
-				return rightRotate(root);
-			//left right
-			if (balance > 1 && getBalance(root->left) < 0)
+			if (balance > 1)
 			{
-				root->left = leftRotate(root->left);
+				if (getBalance(root->left) >= 0)
+					return rightRotate(root);
+				leftRotate(root);
 				return rightRotate(root);
 			}
-			//right right
-			if (balance < -1 && getBalance(root->right) <= 0)
-				return leftRotate(root);
-			if (balance < -1 && getBalance(root->right) > 0)
+			if (balance < -1)
 			{
-				root->right = rightRotate(root->right);
+				if (getBalance(root->right) <= 0)
+					return leftRotate(root);
+				rightRotate(root);
 				return leftRotate(root);
 			}
 			return root;
@@ -421,7 +546,41 @@ class tree
 			_end = tmp_end;
 			_size = tmp_size;
 		}
-	};
+	private:
+		void printBT(const std::string& prefix, const pointer node, bool isLeft, int i)
+		{
+			if ( i > 10)
+				return;
+			if(node == _end)
+			{
 
+				std::cout << prefix;
+
+				std::cout << (isLeft ? "├──" : "└──" );
+
+				// print the value of the node
+				std::cout << "end" << std::endl;
+				return ;
+			}
+			if( node != NULL )
+			{
+				std::cout << prefix;
+
+				std::cout << (isLeft ? "├──" : "└──" );
+
+				// print the value of the node
+				std::cout << node->data.first << "(" << node->height << ")" <<  std::endl;
+
+				// enter the next tree level - left and right branch
+				printBT( prefix + (isLeft ? "│   " : "    "), node->left, true, i + 1);
+				printBT( prefix + (isLeft ? "│   " : "    "), node->right, false, i + 1);
+			}
+		}
+public:
+		void printBT(void)
+		{
+			printBT("", _root, false, 0);
+		}
+};
 }
 #endif

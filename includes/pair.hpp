@@ -6,7 +6,7 @@
 /*   By: gmaris <gmaris@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/14 21:34:20 by gmaris            #+#    #+#             */
-/*   Updated: 2022/01/14 22:31:00 by gmaris           ###   ########.fr       */
+/*   Updated: 2022/01/17 14:54:36 by gmaris           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,14 +30,14 @@ struct pair
 
 	pair(const first_type &a, const second_type &b) : first(a), second(b) {}
 
-	pair& operator= (const pair& pr)
-	{
-		if (this == &pr)
-			return (*this);
-		first = pr.first;
-		second = pr.second;
-		return (*this);
-	}
+	// pair& operator= (const pair& pr)
+	// {
+	// 	if (this == &pr)
+	// 		return (*this);
+	// 	first = pr.first;
+	// 	second = pr.second;
+	// 	return (*this);
+	// }
 };
 template <class T1, class T2>
 pair<T1, T2> make_pair(T1 x, T2 y)
