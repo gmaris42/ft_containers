@@ -6,17 +6,17 @@
 /*   By: gmaris <gmaris@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/15 14:59:09 by gmaris            #+#    #+#             */
-/*   Updated: 2022/01/06 12:03:26 by gmaris           ###   ########.fr       */
+/*   Updated: 2022/01/18 14:42:42 by gmaris           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FT_STACK_HPP
 #define FT_STACK_HPP
 
-#include <vector>
+#include "Vector.hpp"
 
 namespace ft{
-template< class T, class Container = std::vector<T> >
+template< class T, class Container = ft::vector<T> >
 class stack
 {
 	public:

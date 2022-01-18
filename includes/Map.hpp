@@ -6,7 +6,7 @@
 /*   By: gmaris <gmaris@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/15 14:58:44 by gmaris            #+#    #+#             */
-/*   Updated: 2022/01/17 18:10:09 by gmaris           ###   ########.fr       */
+/*   Updated: 2022/01/18 17:33:49 by gmaris           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,14 +16,13 @@
 #include <memory>
 #include <exception>
 #include <stdexcept>
-#include <functional> // for std::less
 #include "iterator.hpp"
 #include "Enable_if.hpp"
 #include "binary_tree.hpp"
 #include "pair.hpp"
 
 namespace ft{
-template<class Key, class T, class Compare = std::less<Key>,
+template<class Key, class T, class Compare = ft::less<Key>,
 	class Allocator = std::allocator<ft::pair<const Key, T> > >
 class map
 {
@@ -52,6 +51,8 @@ class map
 				bool		result_type;
 				value_type	first_argument_type;
 				value_type	second_argument_type;
+				
+				friend class	map;
 
 			protected:
 				Compare	comp;
@@ -70,7 +71,7 @@ class map
 		ft::tree<value_type, key_compare>		_tree;
 	
 	public:
-		explicit map(const Compare &comp, const Allocator &alloc = Allocator()) : _alloc(alloc), _compare(comp) {}
+		explicit map(const Compare &comp = Compare(), const Allocator &alloc = Allocator()) : _alloc(alloc), _compare(comp) {}
 		template <class InputIt>
 		map(InputIt first, InputIt last, const Compare &comp = Compare(), const Allocator &alloc = Allocator()) : _alloc(alloc), _compare(comp)
 		{
@@ -78,11 +79,11 @@ class map
 		}
 		map(const map &cpy) : _alloc(cpy._alloc), _compare(cpy._compare)
 		{
-			this->insert(cpy.begin, cpy.end());
+			this->insert(cpy.begin(), cpy.end());
 		}
 		~map()
 		{
-
+			
 		}
 		void printBT(void)
 		{
@@ -91,12 +92,13 @@ class map
 
 		map	&operator=(const map &rhs)
 		{
-			if (this == rhs)
+			if (this == &rhs)
 				return *this;
 			_alloc = rhs._alloc;
 			_compare = rhs._compare;
 			clear();
 			this->insert(rhs.begin(), rhs.end());
+			return *this;
 		}
 		
 		allocator_type get_allocator() const {return _alloc;}
@@ -116,8 +118,10 @@ class map
 		mapped_type &operator[](const Key &key)
 		{
 			iterator tmp = _tree.find(key);
-			if (tmp == _tree.end())
-				tmp = insert(ft::make_pair(key, T()));
+			if (tmp != _tree.end())
+				return tmp->second;
+			insert(NULL, ft::make_pair(key, T()));
+			tmp = _tree.find(key);
 			return tmp->second;
 		}
 
@@ -186,7 +190,7 @@ class map
 
 		void	clear()
 		{
-			erase(begin(), end());
+			_tree.clear();
 		}
 
 		ft::pair<iterator, bool> insert(const value_type &value)
@@ -215,14 +219,17 @@ class map
 
 		void	erase(iterator pos)
 		{
-			_tree.remove(*pos.first);
+			_tree.remove(*pos);
 		}
 		void	erase(iterator first, iterator last)
 		{
+			iterator tmp = first;
 			while (first != last)
 			{
+				tmp = first;
+				++tmp;
 				erase(first);
-				++first;
+				first = tmp;
 			}
 		}
 		size_type erase(const Key &key)
@@ -230,7 +237,7 @@ class map
 			iterator tmp = find(key);
 			if (tmp == end())
 				return 0;
-			erase(key);
+			erase(tmp);
 			return 1;
 		}
 

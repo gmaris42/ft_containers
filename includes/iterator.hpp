@@ -6,7 +6,7 @@
 /*   By: gmaris <gmaris@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/07 17:38:04 by gmaris            #+#    #+#             */
-/*   Updated: 2022/01/17 15:06:52 by gmaris           ###   ########.fr       */
+/*   Updated: 2022/01/18 16:59:36 by gmaris           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -204,7 +204,7 @@ class bidirectional_iterator : private ft::iterator<bidirectional_iterator_tag, 
 		T*	_p;
 
 	public:
-		bidirectional_iterator() : _p(0) {}
+		bidirectional_iterator() : _p(NULL) {}
 		bidirectional_iterator(T* p) : _p(p) {}
 		template <typename A, bool B, class C>
 		bidirectional_iterator(const bidirectional_iterator<A, B, C>  &cpy, typename ft::enable_if<!B>::type* = 0) : _p(cpy.base()) {}
@@ -219,19 +219,9 @@ class bidirectional_iterator : private ft::iterator<bidirectional_iterator_tag, 
 			return *this;
 		}
 
-		pointer		base() const		{return _p;}
+		T*		base(void) const		{return this->_p;}
 		reference	operator*() const	{return _p->data;}
 		pointer		operator->() const	{return &operator*();}
-
-
-		bool operator==(const bidirectional_iterator &rhs)
-		{
-			return (_p->data.first == rhs._p->data.first);
-		}
-		bool operator!=(const bidirectional_iterator &rhs)
-		{
-			return (_p->data.first != rhs._p->data.first);
-		}
 
 		bidirectional_iterator &operator++(void)
 		{
@@ -253,7 +243,7 @@ class bidirectional_iterator : private ft::iterator<bidirectional_iterator_tag, 
 		bidirectional_iterator operator++(int)
 		{
 			bidirectional_iterator tmp(*this);
-			this->operator++();
+			operator++();
 			return tmp;
 		}
 
@@ -267,7 +257,7 @@ class bidirectional_iterator : private ft::iterator<bidirectional_iterator_tag, 
 			}
 			else
 			{
-				while (_p->parent && _p->_parent->left == _p)
+				while (_p->parent && _p->parent->left == _p)
 					_p = _p->parent;
 				if (_p->parent)
 					_p = _p->parent;
