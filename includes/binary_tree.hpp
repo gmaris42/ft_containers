@@ -6,7 +6,7 @@
 /*   By: gmaris <gmaris@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/12 17:54:17 by gmaris            #+#    #+#             */
-/*   Updated: 2022/01/18 19:42:39 by gmaris           ###   ########.fr       */
+/*   Updated: 2022/01/19 16:58:29 by gmaris           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -204,12 +204,12 @@ class tree
 			tmp = _alloc.allocate(1);
 			_alloc.construct(tmp, Node(val));
 			++_size;
-			std::cout << _GREEN << "  alloc addr" << tmp << "key = "<< tmp->data.first << _NC << std::endl;
+			// std::cout << _GREEN << "  alloc addr" << tmp << "key = "<< tmp->data.first << _NC << std::endl;
 			return tmp;
 		}
 		void		rmNode(pointer pos)
 		{
-			std::cout << _RED << "dealloc addr" << pos << "key = "<< pos->data.first << _NC << std::endl;
+			// std::cout << _RED << "dealloc addr" << pos << "key = "<< pos->data.first << _NC << std::endl;
 			--_size;
 			_alloc.destroy(pos);
 			_alloc.deallocate(pos, 1);
@@ -233,7 +233,7 @@ class tree
 		**	  T1   T2
 		*/
 		pointer rightRotate(pointer z) 
-		{ 
+		{
 			if (z == NULL)
 				return NULL;
 			pointer y = z->left;
@@ -272,6 +272,7 @@ class tree
 
 			y->left = z; 
 			z->right = t_two; 
+			
 			y->parent = z->parent;
 
 			z->parent = y;
@@ -358,11 +359,10 @@ class tree
 				if (root->left == NULL || root->right == NULL)
 				{
 					pointer tmp_child = root->left ? root->left : root->right;
-
+					pointer tmp_replace;
 					//no child
 					if (tmp_child == NULL)
 					{
-						// std::cout << _YELLOW << "rm a no child node" << _NC << std::endl;
 						if (root->parent == NULL)
 						{
 							std::cout << _YELLOW << "fuck cette merde" << _NC << std::endl;
@@ -379,11 +379,11 @@ class tree
 								root->parent->right = NULL;
 							}
 						}
+						tmp_replace = NULL;
 					}
 					// one child
 					else
 					{
-						// std::cout << _YELLOW << "rm a 1 child node" << _NC << std::endl;
 						if (root->parent == NULL)
 						{
 							_root = tmp_child;
@@ -396,14 +396,8 @@ class tree
 								root->parent->right = tmp_child;
 						}
 						tmp_child->parent = root->parent;
-					}
-					pointer tmp_replace;
-					if (tmp_child)
 						tmp_replace = tmp_child;
-					else if (root->parent)
-						tmp_replace = root->parent;
-					else
-						tmp_replace = _root;
+					}
 					root->left = NULL;
 					root->right = NULL;
 					root->parent = NULL;
@@ -413,9 +407,7 @@ class tree
 				// two child
 				else
 				{
-					// 	std::cout << _YELLOW << "rm a 2 child node" << _NC << std::endl;
 					pointer tmp = minValueNode(root->left); // may be null
-
 					//tmp->right == NULL is 100%
 					if (tmp->left == NULL)//tmp no child
 					{
@@ -511,7 +503,6 @@ class tree
 				return _end;
 			if (root == NULL)
 				return NULL;
-			std::cout << _YELLOW << "root->left = " << root->left << ", root->right = " << root->right << _NC << std::endl;
 			root->height = 1 + max(height(root->left), height(root->right));
 			int balance = getBalance(root);
 			if (balance > 1)
@@ -525,7 +516,7 @@ class tree
 			{
 				if (getBalance(root->right) <= 0)
 					return leftRotate(root);
-				root->left = rightRotate(root->right);
+				root->right = rightRotate(root->right);
 				return leftRotate(root);
 			}
 			return root;
@@ -540,7 +531,6 @@ class tree
 		}
 		void		remove(const value_type &val)
 		{
-			std::cout << _MAGENTA << "\twant to destroy key = "<< val.first << _NC << std::endl;
 			if (_root == _end)
 				return ;
 			else

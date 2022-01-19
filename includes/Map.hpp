@@ -6,7 +6,7 @@
 /*   By: gmaris <gmaris@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/15 14:58:44 by gmaris            #+#    #+#             */
-/*   Updated: 2022/01/18 17:33:49 by gmaris           ###   ########.fr       */
+/*   Updated: 2022/01/19 15:59:31 by gmaris           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -198,7 +198,9 @@ class map
 			iterator tmp;
 			if ((tmp = _tree.find(value.first)) == end())
 			{
-				return (ft::make_pair(_tree.insert(value), true));
+				_tree.insert(value);
+				tmp = _tree.find(value.first);
+				return (ft::make_pair(tmp, true));
 			}
 			return (ft::make_pair(tmp, false));
 		}
@@ -245,8 +247,8 @@ class map
 		{
 			if (this == &x)
 				return ;
-			allocator_type tmp_alloc	= x._alloc;
-			allocator_type tmp_compare	= x._compare;
+			allocator_type	tmp_alloc	= x._alloc;
+			key_compare		tmp_compare	= x._compare;
 
 			x._alloc = _alloc;
 			x._compare = _compare;
@@ -259,7 +261,7 @@ class map
 		** Lookup
 		*/
 		
-		size_type count(const Key &key)
+		size_type count(const Key &key) const
 		{
 			return find(key) == end() ? 0 : 1;
 		}
