@@ -6,7 +6,7 @@
 /*   By: gmaris <gmaris@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/15 14:58:44 by gmaris            #+#    #+#             */
-/*   Updated: 2022/01/19 17:04:23 by gmaris           ###   ########.fr       */
+/*   Updated: 2022/01/19 18:55:28 by gmaris           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -183,7 +183,7 @@ class map
 
 		size_type max_size(void) const
 		{
-			return (_alloc.max_size());
+			return (_tree.max_size());
 		}
 
 		/*
