@@ -6,7 +6,7 @@
 /*   By: gmaris <gmaris@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/15 14:58:13 by gmaris            #+#    #+#             */
-/*   Updated: 2022/01/14 19:47:06 by gmaris           ###   ########.fr       */
+/*   Updated: 2022/01/19 18:35:30 by gmaris           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -190,7 +190,6 @@ class vector
 			while (i < _size)
 			{
 				_alloc.construct(tmp + i, _p[i]);
-				_alloc.destroy(&_p[i]);
 				i++;
 			}
 			this->clear();
@@ -264,8 +263,28 @@ class vector
 
 		void	push_back(const value_type &val)
 		{
-			reserve(_size + 1);
-			insert(end(), val);
+			if (_size == _capacity)
+			{
+				size_type new_capa = _capacity * 2;
+				if (new_capa == 0)
+					new_capa = 1;
+				size_type i = 0;
+				if (new_capa > max_size())
+					new_capa = max_size() - 1;
+				pointer tmp = _alloc.allocate(new_capa);
+				while (i < _size)
+				{
+					_alloc.construct(tmp + i, _p[i]);
+					i++;
+				}
+				this->clear();
+				_alloc.deallocate(_p, _capacity);
+				_p = tmp;
+				_capacity = new_capa;
+				_size = i;
+			}
+			_alloc.construct(_p + _size, val);
+			++_size;
 		}
 
 		void	pop_back()

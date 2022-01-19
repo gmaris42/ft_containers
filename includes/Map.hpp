@@ -6,7 +6,7 @@
 /*   By: gmaris <gmaris@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/15 14:58:44 by gmaris            #+#    #+#             */
-/*   Updated: 2022/01/19 15:59:31 by gmaris           ###   ########.fr       */
+/*   Updated: 2022/01/19 17:04:23 by gmaris           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,11 +85,13 @@ class map
 		{
 			
 		}
+	private:
 		void printBT(void)
 		{
 			_tree.printBT();
 		}
-
+	public:
+	
 		map	&operator=(const map &rhs)
 		{
 			if (this == &rhs)

@@ -6,7 +6,7 @@
 /*   By: gmaris <gmaris@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/12 17:54:17 by gmaris            #+#    #+#             */
-/*   Updated: 2022/01/19 16:58:29 by gmaris           ###   ########.fr       */
+/*   Updated: 2022/01/19 17:14:46 by gmaris           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,15 +15,6 @@
 
 #include <iostream>
 
-#define _BLACK   "\033[30m" /* Black   */
-#define _RED     "\033[31m" /* Red     */
-#define _GREEN   "\033[32m" /* Green   */
-#define _YELLOW  "\033[33m" /* Yellow  */
-#define _BLUE    "\033[34m" /* Blue    */
-#define _MAGENTA "\033[35m" /* Magenta */
-#define _CYAN    "\033[36m" /* Cyan    */
-#define _WHITE   "\033[37m" /* White   */
-#define _NC      "\033[0m"  /* Reset   */
 #include <memory>
 #include "iterator.hpp"
 #include "Enable_if.hpp"
@@ -315,14 +306,14 @@ class tree
 			{
 				if (_compare(val.first, pos->left->data.first))
 					return rightRotate(pos);
-				leftRotate(pos);
+				pos->left = leftRotate(pos->left);
 				return rightRotate(pos);
 			}
 			if (balance < -1)
 			{
 				if (_compare(pos->right->data.first, val.first))
 					return leftRotate(pos);
-				rightRotate(pos);
+				pos->right = rightRotate(pos->right);
 				return leftRotate(pos);
 			}
 			return pos;
@@ -365,7 +356,6 @@ class tree
 					{
 						if (root->parent == NULL)
 						{
-							std::cout << _YELLOW << "fuck cette merde" << _NC << std::endl;
 							return NULL;
 						}
 						else
