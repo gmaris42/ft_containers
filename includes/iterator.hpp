@@ -6,7 +6,7 @@
 /*   By: gmaris <gmaris@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/07 17:38:04 by gmaris            #+#    #+#             */
-/*   Updated: 2022/01/18 16:59:36 by gmaris           ###   ########.fr       */
+/*   Updated: 2022/01/24 17:17:51 by gmaris           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -190,7 +190,7 @@ random_access_iterator<f_T> operator-(typename ft::random_access_iterator<f_T>::
 	return (random_access_iterator<f_T>(r.operator->() - n));
 }
 
-template <typename T, bool isConst, class Compare = std::less<T> >
+template <typename T, bool isConst, class Compare = ft::less<T> >
 class bidirectional_iterator : private ft::iterator<bidirectional_iterator_tag, T>
 {
 	public:

@@ -6,7 +6,7 @@
 /*   By: gmaris <gmaris@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/12 17:54:17 by gmaris            #+#    #+#             */
-/*   Updated: 2022/01/19 17:14:46 by gmaris           ###   ########.fr       */
+/*   Updated: 2022/01/24 17:18:09 by gmaris           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -195,12 +195,10 @@ class tree
 			tmp = _alloc.allocate(1);
 			_alloc.construct(tmp, Node(val));
 			++_size;
-			// std::cout << _GREEN << "  alloc addr" << tmp << "key = "<< tmp->data.first << _NC << std::endl;
 			return tmp;
 		}
 		void		rmNode(pointer pos)
 		{
-			// std::cout << _RED << "dealloc addr" << pos << "key = "<< pos->data.first << _NC << std::endl;
 			--_size;
 			_alloc.destroy(pos);
 			_alloc.deallocate(pos, 1);
