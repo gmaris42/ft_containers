@@ -6,7 +6,7 @@
 /*   By: gmaris <gmaris@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/07 17:38:04 by gmaris            #+#    #+#             */
-/*   Updated: 2022/01/24 17:17:51 by gmaris           ###   ########.fr       */
+/*   Updated: 2022/01/31 17:22:35 by gmaris           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 #include <exception>
 #include <stdexcept>
 #include "Enable_if.hpp"
+#include "pair.hpp"
 namespace ft
 {
 
